@@ -1,0 +1,7 @@
+services:
+    e_global.address_manager:
+        class: AppBundle\Managers\ShippingAddressManager
+        arguments: ["@kmapi.exposed.container", "@doctrine.orm.entity_manager", "@e_global.address_factory"]
+
+    e_global.address_factory:
+        class: AppBundle\Factories\ShippingAddressFactory

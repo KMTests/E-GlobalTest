@@ -1,0 +1,65 @@
+services:
+    ApiBundle\Routing\ApiRouter:
+        arguments: ["%kernel.root_dir%", "@kmapi.annotation_reader.factory", "@kmapi.route.factory"]
+        tags: [routing.loader]
+
+    kmapi.controller.listener:
+        class: ApiBundle\EventListeners\ControllerListener
+        arguments:
+            - "@kmapi.request.director"
+            - "@kmapi.view.builder"
+            - "@kmapi.class.factory"
+            - "@kmapi.annotation_reader.factory"
+        tags:
+            - { name: kernel.event_listener, event: kernel.controller, method: onKernelController }
+            - { name: kernel.event_listener, event: kernel.exception, method: onKernelException }
+
+    kmapi.cors.listener:
+        class: ApiBundle\EventListeners\CorsListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+            - { name: kernel.event_listener, event: kernel.response, method: onKernelResponse }
+
+    kmapi.fos_oauth_json.listener:
+        class: ApiBundle\EventListeners\FosOAuthJsonListener
+        tags:
+            - { name: kernel.event_listener, event: kernel.request, method: onKernelRequest }
+
+    kmapi.request.resolver:
+        class: ApiBundle\RequestProcessing\RequestFactory\RequestResolverSymfony
+        arguments: ["@request_stack", "application/json"]
+
+    kmapi.view.builder:
+        class: ApiBundle\RequestProcessing\ViewBuilder
+        arguments: ["@kmapi.request.director", "@translator", "@kmapi.class.factory", "@kmapi.exposed.container"]
+
+    kmapi.request.director:
+        class: ApiBundle\RequestProcessing\RequestDirector
+        arguments:
+            - "@kmapi.request.resolver"
+            - "@security.token_storage"
+            - "@kmapi.exposed.container"
+            - "@kmapi.class.factory"
+            - "@kmapi.request.validator"
+            - "@service_container"
+
+    kmapi.exposed.container:
+        class: ApiBundle\ClassBuilder\ExposedContainer
+
+    kmapi.class.factory:
+        class: ApiBundle\ClassBuilder\ClassFactory
+        arguments: ["@kmapi.exposed.container", "@kmapi.annotation_reader.factory"]
+
+    kmapi.annotation_reader.factory:
+        class: ApiBundle\Factories\AnnotationReaderFactory
+
+    kmapi.route.factory:
+        class: ApiBundle\Factories\RouteFactory
+
+    kmapi.request.validator:
+        class: ApiBundle\Validator\RequestValidator
+        arguments: ["@validator", "@kmapi.annotation_reader.factory"]
+
+    kmapi.request_resolver.entity:
+        class: ApiBundle\RequestProcessing\RequestParameterResolvers\EntityParameterResolver
+        arguments: ["@doctrine.orm.entity_manager"]

@@ -1,0 +1,2 @@
+error.generic.not_blank: should not be blank
+error.generic.greater_then: must be greater then {{ compared_value }} is {{ value }}

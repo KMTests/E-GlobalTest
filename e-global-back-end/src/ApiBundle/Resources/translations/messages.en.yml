@@ -1,0 +1,9 @@
+exception.type.not_implemented: 501 Not Implemented
+exception.type.internal_server_error: 500 Internal Error
+
+exception.request.content-type.not_implemented: Content type {{ content_type }} not implemented yet please use {{ default_content_type }}
+
+
+exception.class.must_extend: subject_class must extend extend_class
+
+validation.error: Validation Error

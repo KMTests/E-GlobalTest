@@ -1,0 +1,37 @@
+version: '2'
+
+services:
+  nginx:
+    build: docker/nginx/
+    ports:
+      - 8086:80
+      - 8087:81
+    volumes:
+      - ./e-global-back-end:/var/www/back-end
+      - ./e-global-front-end:/var/www/front-end
+      - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - fpm
+
+  fpm:
+    build: docker/php-fpm/
+    environment:
+      E_GLOBAL_API_CLIENT_ID: thisisnotsorandomid
+      E_GLOBAL_API_SECRET_ID: thisisnotsorandompassword
+    links:
+      - mysql
+    volumes:
+      - ./e-global-back-end:/var/www/back-end
+      - ./docker/php-fpm/php-ini-overrides.ini:/usr/local/etc/php/conf.d/99-overrides.ini
+
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: e-global-test
+      MYSQL_USER: e_global
+      MYSQL_PASSWORD: e_global
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - ./docker/mysql/data:/var/lib/mysql
+    ports:
+      - 3306:3306
